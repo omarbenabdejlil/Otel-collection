@@ -9,35 +9,8 @@
 ---
 
 ## Architecture
+![Architecture OpenTelemetry K8s](otel-oba.png)
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│  App A (ns: app-frontend)   App B (ns: app-backend)   App C (ns: app-worker)  │
-│  annotation: inject-nodejs  annotation: inject-java   annotation: inject-python │
-│         │ OTel SDK               │ OTel SDK                │ OTel SDK           │
-│         └──── OTLP/gRPC ────────┼──── OTLP/gRPC ──────────┘                    │
-│                                  ▼                                               │
-│                    ┌─────────────────────────┐                                   │
-│                    │  OTel Agent (DaemonSet)  │  ← 1 par nœud                    │
-│                    │  + k8sattributes         │  ← enrichit namespace/pod/node   │
-│                    │  + filelog receiver       │  ← collecte logs containers     │
-│                    └────────┬────────────────┘                                   │
-│                             │ OTLP/gRPC                                          │
-│                             ▼                                                    │
-│              ┌──────────────────────────────┐                                    │
-│              │  OTel Gateway (Deployment)    │  ← centralisé, ns: observability  │
-│              │  + resource processor         │                                    │
-│              │  + batch processor            │                                    │
-│              └───┬──────────┬───────────┬───┘                                    │
-│                  │          │           │                                         │
-│                  ▼          ▼           ▼                                         │
-│           Prometheus     Jaeger       Loki                                       │
-│           (remote_write) (OTLP/gRPC)  (OTLP/HTTP)                               │
-│                  └──────────┼───────────┘                                        │
-│                             ▼                                                    │
-│                          Grafana                                                 │
-└─────────────────────────────────────────────────────────────────────┘
-```
 
 ---
 
